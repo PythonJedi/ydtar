@@ -1,0 +1,14 @@
+---
+# Ydtar document format specification, in the ydtar document format
+!Document ydtar-doc-fmt:
+  meta:
+    title: &title Ydtar Document Format
+    author: &author Tim Hewitt (Python Jedi)
+    date: &date 2015-10-12
+  body:
+    !Section *title:
+      - !Subtitle *author
+      - >
+        The following is the general format for a ydtar document. These are YAML 
+        documents with some specific syntax. The purpose
+      - !Section Starting a Ydtar Document:
