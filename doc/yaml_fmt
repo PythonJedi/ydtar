@@ -1,5 +1,4 @@
-#! /usr/bin/python
-"""YAML Document Target Agnostic Renderer
+YAML Document Target Agnostic Renderer
 
 ydtar is a simple script that operates on YAML documents and produces arbitrary
 plaintext documents that are formatted based on a "target", also defined in YAML
@@ -119,4 +118,4 @@ Another thing to note about builds, the mapping that the build is created with
 is exposed to every regex in the target as the keyword arguments. This allows
 for the build time configuration of the target. This feature should be mostly
 used for the purpose of creating configured ydtar targets and documents that are
-then built against an output target."""
+then built against an output target.
