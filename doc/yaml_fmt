@@ -1,0 +1,122 @@
+#! /usr/bin/python
+"""YAML Document Target Agnostic Renderer
+
+ydtar is a simple script that operates on YAML documents and produces arbitrary
+plaintext documents that are formatted based on a "target", also defined in YAML
+for ease of use. As YAML documents are plaintext, it is possible to use ydtar to
+produce ydtar input documents or render target formats. Good luck and have fun
+if you are so inclined. The following explain the format of ydtar documents,
+targets, and Builds.
+
+>>Target File:
+---
+!Target MyTarget:
+    begin: MyTarget document begin
+    end: MyTarget document end
+    meta:
+        begin: MyTarget meta section begin
+        end: MyTarget meta section end
+        title: regex out with the entire title matched to group 0
+        constant: any constant metadata for this ydtar target
+        # Other metadata representable in MyTarget would go here
+    segments:
+        - !StrSegment CodeBlock:
+            begin: The following is a code block
+            end: End code block
+            rules:
+                # more rules as needed
+
+                # NOTE! inline formatting should be kept to a minimum, as
+                # regexes are usually not expressive enough for complex parsing.
+                # as a general rule, inline formatting tags should not overlap
+                # and have unique beginnings and endings to allow for nesting.
+        - !SeqSegment List:
+            begin: "Listing \0\n"
+            end: End o' list!
+            item-begin: "\{arg1}"
+            item-end: "\n"
+        - !MapSegment Define:
+            begin: Defining \0
+            end: Done defining \0
+            key-begin:
+            key-end: "\n"
+            value-begin: "    "
+            value-end: "\n"
+        - !StrSegment _default: # if another segment has an untagged string it is _default
+            begin:
+            end:
+            rules:
+                "\[b (.*) b\]"->"*\0*"
+        - !SeqSegment Section:
+            begin: Section: \0
+            end:
+            item-begin: "
+        # more segments as needed.
+>>End Target File
+>>Document File
+---
+!Document MyDocument:
+    meta:
+        title: My awesome new document!
+        author: PythonJedi
+    body:
+        !Section Greeting:
+            - >
+                Hello there! You're reading this awesome new document that I
+                wrote using the [b ydtar b] project! As this is a string scalar
+                that is part of a sequence segment, it is using the _default
+                string segment ruleset.
+
+                This is a new paragraph still from the first _default string
+                segment.
+            - !CodeBlock |
+                Now this is an
+                    Indented code block
+                    Provided by the
+                CodeBlock string segment
+            - !Define Words:
+                Stuff: Things
+                All Parts: Whole
+                Spam: Foo
+            - !List Fun
+                - Code
+                - Math
+                - Physics
+                - Pumpkins
+>>End Document file
+>>Build Stream
+---
+!Build "MyDoc.mytar":
+    MyTarget: MyDocument
+    arg1: val1
+    arg2: val2
+...
+>>End Build Stream
+
+ydtar
+preprocesses the document and target files, producing a dictionary of targets
+and a dictionary of documents. This is because
+YAML can't parse the documents until a target has been defined, but we need to
+be able to send the document through multiple targets, not just the previously
+defined one. This is where Build come into play. The build specifies what
+target to apply to which document to produce the desired output file.  The build can then refer to these
+dictionaries, concatenating the desired document to the end of the desired
+target.
+
+There are a few other valid ydtar directives besides Build:
+
+---
+!Drop Document: MyDocument
+!Load "New Documents.yaml"
+...
+
+These directives allow for loading and unloading in the build process, if you
+want to switch out target or document sets for some reason. Please note that
+these directives are only defined within the YAML parser reading the directive
+stream, but none of the parsers are completely inert.
+
+Another thing to note about builds, the mapping that the build is created with
+is exposed to every regex in the target as the keyword arguments. This allows
+for the build time configuration of the target. This feature should be mostly
+used for the purpose of creating configured ydtar targets and documents that are
+then built against an output target."""
