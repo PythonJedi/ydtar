@@ -1,0 +1,32 @@
+Scratch doc for the ydtar-target format.
+
+The expressive power of ydtar comes from the target documents. These files describe how to output the documents to other plaintext formats. Note that most binary formats are not suitable for various reasons. 
+
+The entire target is made up of a mapping of names to "Segment" descriptions. Each segment is a mapping of data and how to format it. The trick is that the data is not known beforehand, so the target document must have an expressive "syntax" allowing for the formatting of arbitrary data. This is accomplished by being able to refer to the values of specific names in mappings, iterate over sequences, and apply regex replacement to scalars. 
+###
+NOTE! Do not get complicated with the regexes and inline formatting! Ydtar reads in YAML, which is a structured plaintext, and (generally) writes out structured plaintext. If you're trying to do complicated regex stuff, odds are you can instead use a few Segment definitions and express your input using YAML's structures.
+###
+These, and a few other convenience formatters, allow you to express the structure of your output in terms of python objects. One thing to keep in mind is that when a document is parsed, segments insie other segments are parsed before the containing segment, and are therefore multiline strings. DO NOT try to get fancy and refer to data inside subsegments, because it won't exist. If you find yourself wanting to to do this, you need to collapse the subsegments into the containing segment, which may introduce unwanted repetition of formatting for common parts. Tradeoff for ease of implementation.
+
+Let's take a look at the different tags available to the segment definitions:
+
+!cat [<item 1>, <item 2>, ...]
+  !cat is used to concatenate lists of strings. Do not try to cat non string objects, it may work, but that is not the intended use case. cat also has an implicit resolver with ' + ' as the delimeter between items. Generally speaking, it's best practice to use quoted text to avoid triggering implicit resolvers.
+
+!ref <name>
+  !ref is used in the context of mappings, and is replaced with the value of the key "name". If the value is itself a mapping use a '.' to define the element of the sub mapping. if the element is a scalar or sequence, dot notation menas nothing and will error.
+
+!for-each <data>: [<before>, <fmt>, <after>]
+  !for-each is used to format all items in a sequence. Each item is formatted with fmt, then concatenated with before and after, then each of the formatted elements are concatenated. Nested lists are handled by using a !for-each for the fmt option. fmt could also be a !ref, if the elements in the sequence are mappings. fmt could also be a !repl, if the elements in the sequence are strings. Remember, subsegments are strings!
+
+!repl <data>: {<pattern>:<replace>, ...}
+  !repl allows for regex replacement in scalars. The primary and only suggested use case is basic inline formatting.
+
+!repeat <string>: <number>
+  !repeat is similar to !cat, but it repeats a string an arbitrary number of times. One use of this is for wikicode style headings, which would also use the !level below
+
+!level
+  !level is replaced with the current level. The current level is how many layers deep the current segment type is. It is primarily used for headings, either concatenated/repl'd into a tag or used with !repeat for repetative headers.
+
+!indent <chars> : [<item 1>, <item 2>, ...]
+  !indent takes each item in the list of strings and indents them with "chars" on a new line, producing a multiline string. Note that each item's lines are also indented, allowing for these to correctly be nested.
