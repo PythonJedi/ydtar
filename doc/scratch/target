@@ -13,6 +13,9 @@ Let's take a look at the different tags available to the segment definitions:
 !cat [<item 1>, <item 2>, ...]
   !cat is used to concatenate lists of strings. Do not try to cat non string objects, it may work, but that is not the intended use case. cat also has an implicit resolver with ' + ' as the delimeter between items. Generally speaking, it's best practice to use quoted text to avoid triggering implicit resolvers.
 
+!repeat [<n>, <s>]
+  !repeat is similar to !cat, but it repeats a string an arbitrary number of times. One use of this is for wikicode style headings
+
 !ref <name>
   !ref is used in the context of mappings, and is replaced with the value of the key "name". If the value is itself a mapping use a '.' to define the element of the sub mapping. if the element is a scalar or sequence, dot notation menas nothing and will error.
 
@@ -22,11 +25,13 @@ Let's take a look at the different tags available to the segment definitions:
 !repl <data>: {<pattern>:<replace>, ...}
   !repl allows for regex replacement in scalars. The primary and only suggested use case is basic inline formatting.
 
-!repeat <string>: <number>
-  !repeat is similar to !cat, but it repeats a string an arbitrary number of times. One use of this is for wikicode style headings, which would also use the !level below
-
-!level
-  !level is replaced with the current level. The current level is how many layers deep the current segment type is. It is primarily used for headings, either concatenated/repl'd into a tag or used with !repeat for repetative headers.
-
 !indent <chars> : [<item 1>, <item 2>, ...]
   !indent takes each item in the list of strings and indents them with "chars" on a new line, producing a multiline string. Note that each item's lines are also indented, allowing for these to correctly be nested.
+  
+Variables are a feature, but are not required 
+  
+!var <name>
+  Declare a new variable. These generally shouldn't be used, but if your output format doesn't automatic things that need counters, then this allows you to do it.
+  
+!mul [<x>, <y>]
+  !mul multiplies two numbers. There are very few reasons to do this.
