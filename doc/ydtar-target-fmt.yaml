@@ -1,0 +1,47 @@
+---
+!document
+  meta:
+    title: ydtar Target Specification Format
+    author: Tim Hewitt(PythonJedi)
+  content:
+    - !section Purpose:
+      - !p >
+        The purpose of this document is to describe the basic concepts of ydtar
+        target documents. This is the underlying power of the ydtar program.
+        The target specifications themselves are domain specific languages, and
+        the target format is itself a domain specific language for sepecifying
+        domain specific languages. A meta-DSL if you will. This process gets
+        silly when one considers that a ydtar target that produces YAML could be
+        used to take certain ydtar documents and dynamically produce ydtar
+        targets. Such meta-meta-programming must be approached with caution.
+    - !section Process:
+      - !p >
+        A brief overview of the process involving a ydtar target follows.
+      - !ordered-list
+        - !definition Parsing YAML : >
+            ydtar relies on the PyYAML project for parsing a YAML document. This
+            library allows for the binding of arbitrary python callables to YAML
+            tags. This is provided so application-specific tags can produce
+            application-specific datatypes directly in python. However, it also
+            allows ydtar to instead parse node and produce any data type
+            desired. The code can also have side effects. In this case, parsing
+            a ydtar target specification in the correct context actually binds
+            new constructors to the YAML parser. These constructors parse python
+            representations of YAML nodes, outputting strings of finalized text.
+
+          - !definition Parsing ydtar : >
+            Because of how YAML parsing works in python and how ydtar is set up,
+            after the target document is read, the parser is set to read in
+            ydtar docuements. During this step of the process, the "segments"
+            defined in the target and built during the parsing of the target are
+            triggered, parsing the node and then formatting it as specified.
+            Since each constructor first builds the node it must parse, the
+            execution order goes from more to less indented and top to bottom
+            within the same indentation level. This means that by the time any
+            formatting is applied by a specific segment constructor, all of the
+            sub-segments have been already formatted.
+
+          - !definition output : >
+            Once the document has been parsed, it is a single YAML scalar
+            element that contains the output text. This is pushed out to the
+            file specified by the build trigger.

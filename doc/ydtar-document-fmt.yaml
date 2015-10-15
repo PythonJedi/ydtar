@@ -1,14 +1,31 @@
 ---
 # Ydtar document format specification, in the ydtar document format
-!Document ydtar-doc-fmt:
+!document ydtar-doc-fmt:
   meta:
-    title: &title Ydtar Document Format
-    author: &author Tim Hewitt (Python Jedi)
-    date: &date 2015-10-12
-  body:
-    !Section *title:
-      - !Subtitle *author
-      - >
-        The following is the general format for a ydtar document. These are YAML 
-        documents with some specific syntax. The purpose
-      - !Section Starting a Ydtar Document:
+    title: Ydtar Document Format
+    author: Tim Hewitt (Python Jedi)
+    date: 2015-10-12
+  content:
+    - !section Introduction :
+      - !p >
+        This document aims to describe the format of documents written to be
+        used with ydtar. Because of the highly flexible nature of ydtar, the
+        document format is concise but can be vauge.
+    - !section Basic concepts :
+      - !p >
+        The basic concept of ydtar documents is to describe the content that the
+        author wishes to write without specifying the detailed output structure.
+        The content of the document exists in segments, nested YAML data that is
+        parsed by a domain specific language custom for taking in ydtar-style
+        documents and ouputting a desired format known as a target spe. Whether
+        the target spec be HTML, LaTeX, WikiCode, BBcode, or even plaintext, the
+        input document reamins the same. All the author has to be concerned with
+        is the flow of the content and specifying the type of the content they
+        are creating.
+      - !note >
+        The simplicity of expression in ydtar comes at the cost of universality.
+        Using nonstandard segment types with non-robust target specs could cause
+        issues. Eventually a default segment spec should be added, but that will
+        have to come in later versions. If you have issues with a document, look
+        through the target spec to see what tag you should be using.
+     
