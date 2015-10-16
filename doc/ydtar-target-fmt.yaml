@@ -99,14 +99,14 @@ ydtar-target-fmt: !document
             This tag repeats the given scalar number times.
           "!indent <i scalar> : [<scalar 1>, <scalar 2>, ...]" : >
             This tag is a convenience for indenting all the lines of all the items
-          in the list with the given i scalar. This can be expressed like so:
-            !for-each !ref data :
-              begin: ""
-              item : !repl {"(.*\n)": "  \1"}
-              end: ""
-          assuming that the list is stored in the name "data" and the
-          indentation is two spaces. It is a common enough operation that it is
-          worth streamlining.
+            in the list with the given i scalar. This can be expressed like so:
+              !for-each !ref data :
+                begin: ""
+                item : !repl {"(.*\n)": "  \1"}
+                end: ""
+            assuming that the list is stored in the name "data" and the
+            indentation is two spaces. It is a common enough operation that it is
+            worth streamlining.
           "!wrap <length> : <scalar>" : >
             Wraps each line of scalar to length, respecting indentation. This
             cannot easily be done in ydtar, but is important for plaintext ouput
@@ -132,8 +132,8 @@ ydtar-target-fmt: !document
             at runtime in the metadata of the output.
     - !section Common Tags:
       - !p >
-        This is covered in more detail in the document description, but the
-        common tags in generic documents include the following:
+        This is covered in the document description, but the common tags in
+        generic documents include the following:
       - !def
         "!document" : >
           This tag is the only required tag for documents. It should handle the
@@ -142,5 +142,33 @@ ydtar-target-fmt: !document
           warnings, but continues processing, so feel free to specify as much
           metadata as the output format can handle, just know that many
           documents may not have that metadata, so any format critical elements
-          must be seaparate from the metadata format.
-      - "
+          must be seaparate from the metadata format. The content of the
+          document is in the element "content", which should be just a scalar by
+          the time !document is run.
+        "!section" : >
+          This tag handles the logical sectioning of data as its name implies.
+          It is a singleton mapping from a section name to a sequence of
+          scalars. It should produce a visible section heading based on the
+          subsection level ([code]!ref _level[/code]) and concatenate the
+          scalars in order.
+        "!p" : >
+          This tag is the way paragraphic text should be handled. Combined with
+          the [code]>[/code] scalar type from vanilla YAML, new paragraphs are
+          separated by a blank line in the source document with no extra
+          indentation, while they can be formatted as preferred in the output
+          format.
+        "!def" : >
+          This tag should produce a series of definitions from a mapping of
+          scalar terms to scalar definitions. Most structured markups have this
+          as a builtin.
+        "!olist" : >
+          This tag should produce an ordered list of text from a sequence of
+          scalars. Most structured markups have this as a builtin ([code]!ref
+          _index[/code] helps for those that don't).
+        "!ulist" : >
+          This tag should produce an unordered list of text from a sequence of
+          scalars. Most structured markups have this as a builtin.
+        "!note" : >
+          This tag is used to denote a parenthetical paragraph. It should be
+          clearly delinieated from the main text. This tag may not be as common,
+          but it's used enough to include a definition.
