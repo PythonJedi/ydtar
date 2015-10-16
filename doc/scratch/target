@@ -1,8 +1,8 @@
 Scratch doc for the ydtar-target format.
 
-The expressive power of ydtar comes from the target documents. These files describe how to output the documents to other plaintext formats. Note that most binary formats are not suitable for various reasons. 
+The expressive power of ydtar comes from the target documents. These files describe how to output the documents to other plaintext formats. Note that most binary formats are not suitable for various reasons.
 
-The entire target is made up of a mapping of names to "Segment" descriptions. Each segment is a mapping of data and how to format it. The trick is that the data is not known beforehand, so the target document must have an expressive "syntax" allowing for the formatting of arbitrary data. This is accomplished by being able to refer to the values of specific names in mappings, iterate over sequences, and apply regex replacement to scalars. 
+The entire target is made up of a mapping of names to "Segment" descriptions. Each segment is a mapping of data and how to format it. The trick is that the data is not known beforehand, so the target document must have an expressive "syntax" allowing for the formatting of arbitrary data. This is accomplished by being able to refer to the values of specific names in mappings, iterate over sequences, and apply regex replacement to scalars.
 ###
 NOTE! Do not get complicated with the regexes and inline formatting! Ydtar reads in YAML, which is a structured plaintext, and (generally) writes out structured plaintext. If you're trying to do complicated regex stuff, odds are you can instead use a few Segment definitions and express your input using YAML's structures.
 ###
@@ -19,19 +19,22 @@ Let's take a look at the different tags available to the segment definitions:
 !ref <name>
   !ref is used in the context of mappings, and is replaced with the value of the key "name". If the value is itself a mapping use a '.' to define the element of the sub mapping. if the element is a scalar or sequence, dot notation menas nothing and will error.
 
-!for-each <data>: [<before>, <fmt>, <after>]
-  !for-each is used to format all items in a sequence. Each item is formatted with fmt, then concatenated with before and after, then each of the formatted elements are concatenated. Nested lists are handled by using a !for-each for the fmt option. fmt could also be a !ref, if the elements in the sequence are mappings. fmt could also be a !repl, if the elements in the sequence are strings. Remember, subsegments are strings!
+!for-each <data>: [<before>, !ref _item, <after>]
+  !for-each is used to format all items in a sequence. Each item is formatted with fmt, then concatenated with before and after, then each of the formatted elements are concatenated. Nested lists are handled by using a !for-each for the fmt option. use !ref _item to
 
 !repl <data>: {<pattern>:<replace>, ...}
   !repl allows for regex replacement in scalars. The primary and only suggested use case is basic inline formatting.
 
 !indent <chars> : [<item 1>, <item 2>, ...]
-  !indent takes each item in the list of strings and indents them with "chars" on a new line, producing a multiline string. Note that each item's lines are also indented, allowing for these to correctly be nested.
-  
-Variables are a feature, but are not required 
-  
+  !indent takes each item in the list of strings and indents them with "chars" on a new line, producing a multiline string. Note that each item's lines are also indented, allowing for these to correctly be nested. This only matters if you want nicely formatted source code or your output requires it.
+
+Variables are a feature, but are not required for most targets.
+
 !var <name>
   Declare a new variable. These generally shouldn't be used, but if your output format doesn't automatic things that need counters, then this allows you to do it.
-  
+
 !mul [<x>, <y>]
   !mul multiplies two numbers. There are very few reasons to do this.
+
+!add [<x>, <y>]
+  !add sums two numbers. again, there are very few reasons do do this.

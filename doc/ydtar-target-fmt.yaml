@@ -1,5 +1,5 @@
 ---
-!document
+ydtar-target-fmt: !document
   meta:
     title: ydtar Target Specification Format
     author: Tim Hewitt(PythonJedi)
@@ -45,3 +45,73 @@
             Once the document has been parsed, it is a single YAML scalar
             element that contains the output text. This is pushed out to the
             file specified by the build trigger.
+      - !p >
+        This is a basic overview of the process of using a ydtar target.
+    - !section Tags :
+      - !p >
+        The directives used in defining the formatting are a collection of YAML
+        tags. This is the specification of the meta-DSL for defining the
+        formatters.
+      - !section Document:
+        - !definition "!target <[!segment seg1, !segment seg2, ...]>" : >
+          This tag induces the target parser. it should be the value of a
+          singleton mapping with the key being the internal name of the target
+          for reference in build triggers. It takes in a list of segment objects
+          and configures the yaml parser by adding in the parsing functions.
+        - !definition "!segment <name> : <format>" :
+          This tag creates a segment object, which defines the process of
+          formatting a certain document element. The formatting directives are
+          the following tags. The formatting directives are passed the parsed
+          node and the environment.
+      - !section Accessing Data:
+        - !definition "!ref <name>" : >
+          This tag allows for the reference of arbitrary data in mappings or the
+          environment. Data in mappings is resolved first, so most environment
+          names are preceded with underscores. If there are nested structures,
+          the '.' character can be used to reference elements in substructures.
+          !ref can be used to get specific item from a sequence by using a
+          numeric subname. As '.' is the subname separator, floating point
+          subnames are not allowed. Integer subnames are fine, as ref smartly
+          handles the type of each element it works with.
+        - !definition "!for-each <data> : {begin: <string>, item: <format>, end: <scalar>}" : >
+          This tag is used to format all the items in a list. It also has hooks
+          for prepending and appending the formatted content if necessary.
+          !for-each can also be used to iterate over all pairs of a mapping. The
+          items to be formatted are themselves the pairs represented as
+          sequences.
+      - !section Manipulating Data:
+        - !definition "!repl <data>: {<pattern 1>: <replace 1>, <pattern 2>: <replace 2>, ...}" : >
+          This tag does python style regex replacement on scalars. Do note that
+          regexes are very limited in their matching prowess. If trying to
+          define structures as inline elements, break up the scalar and use the
+          structural expressions of YAML and ydtar to handle them.
+        - !definition "!cat [<scalar 1>, <scalar 2>, ...]" : >
+          This tag concatenates a list of scalars. If a scalar is a number, it
+          is converted to a string and then concatenated in its proper location.
+        - !definition "!repeat [<scalar>, <number>]" : >
+          This tag repeats the given scalar number times.
+        - !definition "!indent <i scalar> : [<scalar 1>, <scalar 2>, ...]" : >
+          This tag is a convenience for indenting all the lines of all the items
+          in the list with the given i scalar. This can be expressed like so:
+            !for-each !ref data :
+              begin: ""
+              item : !repl {"(.*\n)": "  \1"}
+              end: ""
+          assuming that the list is stored in the name "data" and the
+          indentation is two spaces. It is a common enough operation that it is
+          worth streamlining.
+      - !section Variables
+        - !p >
+          Note that variables are not required for most intended ouput formats.
+          However, they sometimes are needed because the output format does not
+          support some structure and the formatter instead has to keep track of
+          it.
+        - !definition "!set <name> : value" >
+          This tag sets the name to value in the environment. If name does not
+          currently exist, it is added.
+        - !definition "!sum [<item 1>, <item 2>, ...]" : >
+          This tag sums numeric variables. String variables are not valid sum
+          operands. Use !cat instead.
+        - !definition "!mul [<item 1>, <item 2>, ...]" : >
+          This tag multiplies numeric variables. String variables are not valid
+          mul operands. Use !repeat instead.
