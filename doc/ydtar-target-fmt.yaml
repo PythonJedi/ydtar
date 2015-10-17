@@ -172,3 +172,6 @@ ydtar-target-fmt: !document
           This tag is used to denote a parenthetical paragraph. It should be
           clearly delinieated from the main text. This tag may not be as common,
           but it's used enough to include a definition.
+        "!code" : >
+          Block of text that should be rendered in a monospace font with
+          preserved
