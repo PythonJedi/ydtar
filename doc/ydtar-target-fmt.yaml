@@ -54,12 +54,12 @@ ydtar-target-fmt: !document
         formatters.
       - !section Document:
         - !def
-          "!target <[!segment seg1, !segment seg2, ...]>" : >
+          "!target {<name1>: <seg1>, <name2>: <seg2>, ...}" : >
             This tag induces the target parser. it should be the value of a
             singleton mapping with the key being the internal name of the target
             for reference in build triggers. It takes in a list of segment objects
             and configures the yaml parser by adding in the parsing functions.
-          "!segment <name> : <format>" : >
+          "!segment [<tag1>, <tag2>, ...]" : >
             This tag creates a segment object, which defines the process of
             formatting a certain document element. The formatting directives are
             the tags in the following sections that operate on individual elements
@@ -67,8 +67,7 @@ ydtar-target-fmt: !document
             and the environment.
           "!alias <name>" : >
             This tag allows multiple segemnts to format the same way without
-            rewriting the same format. The name does not necessarily have to be
-            defined before using, but must be defined at some point.
+            rewriting the same format. The name must be defined before using.
       - !section Accessing Data:
         - !def
           "!ref <name>" : >
@@ -118,8 +117,8 @@ ydtar-target-fmt: !document
           support some structure and the formatter instead has to keep track of
           it.
         - !def
-          "!set <name> : value" >
-            This tag sets the name to value in the environment. If name does not
+          "!set {<name1>: <val1>, <name2>: <val2>, ...}" : >
+            This tag sets the names to values in the environment. If name does not
             currently exist, it is added.
           "!sum [<item 1>, <item 2>, ...]" : >
             This tag sums numeric variables. String variables are not valid sum
