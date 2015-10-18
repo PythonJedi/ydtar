@@ -1,0 +1,34 @@
+---
+test-out : !target
+  document : !segment
+    - "Begin Test Document Output!\n"
+    - !cat ["Date of output: ", !ref _date, "\n"]
+    - "Metadata!\n"
+    - !indent
+      by: "  "
+      data: !per-item
+        in: !ref meta
+        do: !cat ["meta value :", !ref "0", "=", !ref "1", "\n"]
+    - !per-item
+      in: !ref text
+      do: !indent
+        by: ""
+        data: !ref ""
+  section : !segment
+    - !per-item
+      in: !ref ""
+      do: !cat
+        - !cat ["Begin Section ", !ref "0", " at level ", !ref "_level.section", "\n"]
+        - !per-item
+          in: !ref "1"
+          do: !indent
+            by: "  "
+            data: !ref ""
+  p : !segment
+    - "Paragraph: "
+    - !ref ""
+  def : !segment
+    - "Definition List: \n"
+    - !per-item
+      in: !ref ""
+      do: !cat ["Term: ", !ref "0", "\n  Definition: ", !ref "1", "\n"]

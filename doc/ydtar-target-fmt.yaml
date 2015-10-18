@@ -1,10 +1,9 @@
 ---
 ydtar-target-fmt: !document
-  meta:
-    title: ydtar Target Specification Format
-    author: Tim Hewitt(PythonJedi)
-  content:
-    - !section Purpose:
+  meta: {title: "ydtar Target Specification Format", author: "Tim Hewitt(PythonJedi)"}
+  text:
+    - !section
+      Purpose :
       - !p >
         The purpose of this document is to describe the basic concepts of ydtar
         target documents. This is the underlying power of the ydtar program.
@@ -14,10 +13,12 @@ ydtar-target-fmt: !document
         silly when one considers that a ydtar target that produces YAML could be
         used to take certain ydtar documents and dynamically produce ydtar
         targets. Such meta-meta-programming must be approached with caution.
-    - !section Process:
+    - !section
+      Process:
       - !p >
         A brief overview of the process involving a ydtar target follows.
-      - !section Parsing YAML :
+      - !section
+        Parsing YAML :
         - !p >
           ydtar relies on the PyYAML project for parsing a YAML document. This
           library allows for the binding of arbitrary python callables to YAML
@@ -28,7 +29,8 @@ ydtar-target-fmt: !document
           a ydtar target specification in the correct context actually binds
           new constructors to the YAML parser. These constructors parse python
           representations of YAML nodes, outputting strings of finalized text.
-      - !section Parsing ydtar :
+      - !section
+        Parsing ydtar :
         - !p >
           Because of how YAML parsing works in python and how ydtar is set up,
           after the target document is read, the parser is set to read in
@@ -40,19 +42,20 @@ ydtar-target-fmt: !document
           within the same indentation level. This means that by the time any
           formatting is applied by a specific segment constructor, all of the
           sub-segments have been already formatted.
-      - !section Output :
+      - !section
+        Output :
         - !p >
           Once the document has been parsed, it is a single YAML scalar
           element that contains the output text. This is pushed out to the
           file specified by the build trigger.
-      - !p >
-        This is a basic overview of the process of using a ydtar target.
-    - !section Tags :
+    - !section
+      Tags :
       - !p >
         The directives used in defining the formatting are a collection of YAML
         tags. This is the specification of the meta-DSL for defining the
         formatters.
-      - !section Document:
+      - !section
+        Document:
         - !def
           "!target {<name1>: <seg1>, <name2>: <seg2>, ...}" : >
             This tag induces the target parser. it should be the value of a
@@ -65,10 +68,8 @@ ydtar-target-fmt: !document
             the tags in the following sections that operate on individual elements
             of the document. The formatting directives are passed the parsed node
             and the environment.
-          "!alias <name>" : >
-            This tag allows multiple segemnts to format the same way without
-            rewriting the same format. The name must be defined before using.
-      - !section Accessing Data:
+      - !section
+        Accessing Data:
         - !def
           "!ref <name>" : >
             This tag allows for the reference of arbitrary data in mappings or the
@@ -79,14 +80,15 @@ ydtar-target-fmt: !document
             numeric subname. As '.' is the subname separator, floating point
             subnames are not allowed. Integer subnames are fine, as ref smartly
             handles the type of each element it works with.
-          "!for-each <data> : {begin: <string>, item: <format>, end: <scalar>}" : >
+          "!per-item {in: <data>, do : <fmt>" : >
             This tag is used to format all the items in a list. It also has hooks
             for prepending and appending the formatted content if necessary.
-            !for-each can also be used to iterate over all pairs of a mapping. The
+            !per-item can also be used to iterate over all pairs of a mapping. The
             items to be formatted are the pairs represented as sequences.
-      - !section Manipulating Data:
+      - !section
+        Manipulating Data:
         - !def
-          "!repl {<data>: {<pattern 1>: <replace 1>, <pattern 2>: <replace 2>, ...}}" : >
+          "!repl {in: <data>, by: {<pattern 1>: <replace 1>, <pattern 2>: <replace 2>, ...}}" : >
             This tag does python style regex replacement on scalars. Do note that
             regexes are very limited in their matching prowess. If trying to
             define structures as inline elements, break up the scalar and use the
@@ -94,9 +96,9 @@ ydtar-target-fmt: !document
           "!cat [<scalar 1>, <scalar 2>, ...]" : >
             This tag concatenates a list of scalars. If a scalar is a number, it
             is converted to a string and then concatenated in its proper location.
-          "!repeat [<scalar>, <number>]" : >
-            This tag repeats the given scalar number times.
-          "!indent <i scalar> : [<scalar 1>, <scalar 2>, ...]" : >
+          "!repeat [<data>, <number>]" : >
+            This tag repeats the given scalar data number times.
+          "!indent {by: <i scalar>, data: [<scalar 1>, <scalar 2>, ...]}" : >
             This tag is a convenience for indenting all the lines of all the items
             in the list with the given i scalar. This can be expressed like so:
               !for-each !ref data :
@@ -106,18 +108,15 @@ ydtar-target-fmt: !document
             assuming that the list is stored in the name "data" and the
             indentation is two spaces. It is a common enough operation that it is
             worth streamlining.
-          "!wrap <length> : <scalar>" : >
-            Wraps each line of scalar to length, respecting indentation. This
-            cannot easily be done in ydtar, but is important for plaintext ouput
-            formatting.
-      - !section Variables
+      - !section
+        Variables:
         - !p >
           Note that variables are not required for most intended ouput formats.
           However, they sometimes are needed because the output format does not
           support some structure and the formatter instead has to keep track of
           it.
         - !def
-          "!set {<name1>: <val1>, <name2>: <val2>, ...}" : >
+          "!set {<name1> : <val1>, <name2>: <val2>, ...}" : >
             This tag sets the names to values in the environment. If name does not
             currently exist, it is added.
           "!sum [<item 1>, <item 2>, ...]" : >
@@ -126,10 +125,8 @@ ydtar-target-fmt: !document
           "!mul [<item 1>, <item 2>, ...]" : >
             This tag multiplies numeric variables. String variables are not valid
             mul operands. Use !repeat instead.
-          "!date" : >
-            Returns the current date as yyyy-mm-dd. Useful for specifying a date
-            at runtime in the metadata of the output.
-    - !section Common Tags:
+    - !section
+      Common Tags:
       - !p >
         This is covered in the document description, but the common tags in
         generic documents include the following:

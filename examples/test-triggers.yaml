@@ -1,0 +1,8 @@
+---
+- !load examples/test-target.yaml
+- !load examples/test-in.yaml
+- !load doc/ydtar-target-fmt.yaml
+- !build
+  target: test-out
+  document: ydtar-target-fmt
+  out: examples/test.out

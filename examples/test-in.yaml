@@ -1,0 +1,6 @@
+---
+test-in: !document
+  meta:
+    title: Basic test
+  text:
+    - rawr

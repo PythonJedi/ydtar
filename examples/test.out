@@ -1,0 +1,91 @@
+Begin Test Document Output!
+Date of output: 2015-10-18
+Metadata!
+  meta value :title=ydtar Target Specification Format
+  meta value :author=Tim Hewitt(PythonJedi)
+Begin Section Purpose at level 1
+  Purpose  Paragraph: The purpose of this document is to describe the basic concepts of ydtar target documents. This is the underlying power of the ydtar program. The target specifications themselves are domain specific languages, and the target format is itself a domain specific language for sepecifying domain specific languages. A meta-DSL if you will. This process gets silly when one considers that a ydtar target that produces YAML could be used to take certain ydtar documents and dynamically produce ydtar targets. Such meta-meta-programming must be approached with caution.
+Begin Section Process at level 1
+  Process  Paragraph: A brief overview of the process involving a ydtar target follows.
+  Begin Section Parsing YAML at level 2
+    Parsing YAML  Paragraph: ydtar relies on the PyYAML project for parsing a YAML document. This library allows for the binding of arbitrary python callables to YAML tags. This is provided so application-specific tags can produce application-specific datatypes directly in python. However, it also allows ydtar to instead parse node and produce any data type desired. The code can also have side effects. In this case, parsing a ydtar target specification in the correct context actually binds new constructors to the YAML parser. These constructors parse python representations of YAML nodes, outputting strings of finalized text.
+  Begin Section Parsing ydtar at level 2
+    Parsing ydtar  Paragraph: Because of how YAML parsing works in python and how ydtar is set up, after the target document is read, the parser is set to read in ydtar docuements. During this step of the process, the "segments" defined in the target and built during the parsing of the target are triggered, parsing the node and then formatting it as specified. Since each constructor first builds the node it must parse, the execution order goes from more to less indented and top to bottom within the same indentation level. This means that by the time any formatting is applied by a specific segment constructor, all of the sub-segments have been already formatted.
+  Begin Section Output at level 2
+    Output  Paragraph: Once the document has been parsed, it is a single YAML scalar element that contains the output text. This is pushed out to the file specified by the build trigger.
+Begin Section Tags at level 1
+  Tags  Paragraph: The directives used in defining the formatting are a collection of YAML tags. This is the specification of the meta-DSL for defining the formatters.
+  Begin Section Document at level 2
+    Document  Definition List: 
+    Term: !target {<name1>: <seg1>, <name2>: <seg2>, ...}
+      Definition: This tag induces the target parser. it should be the value of a singleton mapping with the key being the internal name of the target for reference in build triggers. It takes in a list of segment objects and configures the yaml parser by adding in the parsing functions.
+    
+    Term: !segment [<tag1>, <tag2>, ...]
+      Definition: This tag creates a segment object, which defines the process of formatting a certain document element. The formatting directives are the tags in the following sections that operate on individual elements of the document. The formatting directives are passed the parsed node and the environment.
+    
+  Begin Section Accessing Data at level 2
+    Accessing Data  Definition List: 
+    Term: !per-item {in: <data>, do : <fmt>
+      Definition: This tag is used to format all the items in a list. It also has hooks for prepending and appending the formatted content if necessary. !per-item can also be used to iterate over all pairs of a mapping. The items to be formatted are the pairs represented as sequences.
+    
+    Term: !ref <name>
+      Definition: This tag allows for the reference of arbitrary data in mappings or the environment. Data in mappings is resolved first, so most environment names are preceded with underscores. If there are nested structures, the '.' character can be used to reference elements in substructures. !ref can be used to get specific item from a sequence by using a numeric subname. As '.' is the subname separator, floating point subnames are not allowed. Integer subnames are fine, as ref smartly handles the type of each element it works with.
+    
+  Begin Section Manipulating Data at level 2
+    Manipulating Data  Definition List: 
+    Term: !cat [<scalar 1>, <scalar 2>, ...]
+      Definition: This tag concatenates a list of scalars. If a scalar is a number, it is converted to a string and then concatenated in its proper location.
+    
+    Term: !indent {by: <i scalar>, data: [<scalar 1>, <scalar 2>, ...]}
+      Definition: This tag is a convenience for indenting all the lines of all the items in the list with the given i scalar. This can be expressed like so:
+      !for-each !ref data :
+        begin: ""
+        item : !repl {"(.*\n)": "  \1"}
+        end: ""
+    assuming that the list is stored in the name "data" and the indentation is two spaces. It is a common enough operation that it is worth streamlining.
+    
+    Term: !repl {in: <data>, by: {<pattern 1>: <replace 1>, <pattern 2>: <replace 2>, ...}}
+      Definition: This tag does python style regex replacement on scalars. Do note that regexes are very limited in their matching prowess. If trying to define structures as inline elements, break up the scalar and use the structural expressions of YAML and ydtar to handle them.
+    
+    Term: !repeat [<data>, <number>]
+      Definition: This tag repeats the given scalar data number times.
+    
+  Begin Section Variables at level 2
+    Variables  Paragraph: Note that variables are not required for most intended ouput formats. However, they sometimes are needed because the output format does not support some structure and the formatter instead has to keep track of it.
+    Definition List: 
+    Term: !sum [<item 1>, <item 2>, ...]
+      Definition: This tag sums numeric variables. String variables are not valid sum operands. Use !cat instead.
+    
+    Term: !set {<name1> : <val1>, <name2>: <val2>, ...}
+      Definition: This tag sets the names to values in the environment. If name does not currently exist, it is added.
+    
+    Term: !mul [<item 1>, <item 2>, ...]
+      Definition: This tag multiplies numeric variables. String variables are not valid mul operands. Use !repeat instead.
+    
+Begin Section Common Tags at level 1
+  Common Tags  Paragraph: This is covered in the document description, but the common tags in generic documents include the following:
+  Definition List: 
+  Term: !note
+    Definition: This tag is used to denote a parenthetical paragraph. It should be clearly delinieated from the main text. This tag may not be as common, but it's used enough to include a definition.
+  
+  Term: !document
+    Definition: This tag is the only required tag for documents. It should handle the formatting of any and all "document begin", "document end", and metadata. Ydtar handles missing references missing elements as warnings, but continues processing, so feel free to specify as much metadata as the output format can handle, just know that many documents may not have that metadata, so any format critical elements must be seaparate from the metadata format. The content of the document is in the element "content", which should be just a scalar by the time !document is run.
+  
+  Term: !def
+    Definition: This tag should produce a series of definitions from a mapping of scalar terms to scalar definitions. Most structured markups have this as a builtin.
+  
+  Term: !p
+    Definition: This tag is the way paragraphic text should be handled. Combined with the [code]>[/code] scalar type from vanilla YAML, new paragraphs are separated by a blank line in the source document with no extra indentation, while they can be formatted as preferred in the output format.
+  
+  Term: !olist
+    Definition: This tag should produce an ordered list of text from a sequence of scalars. Most structured markups have this as a builtin ([code]!ref _index[/code] helps for those that don't).
+  
+  Term: !section
+    Definition: This tag handles the logical sectioning of data as its name implies. It is a singleton mapping from a section name to a sequence of scalars. It should produce a visible section heading based on the subsection level ([code]!ref _level[/code]) and concatenate the scalars in order.
+  
+  Term: !code
+    Definition: Block of text that should be rendered in a monospace font with preserved
+  
+  Term: !ulist
+    Definition: This tag should produce an unordered list of text from a sequence of scalars. Most structured markups have this as a builtin.
+  

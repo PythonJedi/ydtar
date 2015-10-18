@@ -1,0 +1,7 @@
+Adding Target: test-out
+Adding Document: test-in
+Adding Document: ydtar-target-fmt
+Loaded segment: p
+Loaded segment: section
+Loaded segment: document
+Loaded segment: def
