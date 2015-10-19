@@ -134,13 +134,8 @@ ydtar-target-fmt: !document
         "!document" : >
           This tag is the only required tag for documents. It should handle the
           formatting of any and all "document begin", "document end", and
-          metadata. Ydtar handles missing references missing elements as
-          warnings, but continues processing, so feel free to specify as much
-          metadata as the output format can handle, just know that many
-          documents may not have that metadata, so any format critical elements
-          must be seaparate from the metadata format. The content of the
-          document is in the element "content", which should be just a scalar by
-          the time !document is run.
+          metadata. The content of the document is in the element "content",
+          which should be just a scalar by the time !document is run.
         "!section" : >
           This tag handles the logical sectioning of data as its name implies.
           It is a singleton mapping from a section name to a sequence of
